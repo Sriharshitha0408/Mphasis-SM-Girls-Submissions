@@ -1,0 +1,86 @@
+Assignment:
+-----------------------------------------------------------
+1)Create two tables and insert in both the tables using procedure with exception handling and rollback.
+-----------------------------------------------------------------
+Creation of employee1 and employee_details table:
+
+create table employee1 
+(empid number primary key,
+salary number,
+dept varchar2(20));
+
+create table employee_details 
+(empname varchar2(20) primary key,
+email varchar2(20),
+address varchar2(20));
+
+Creation of procedure:
+
+create or replace procedure insert_e(empid IN number,salary IN number,dept IN varchar2,empname IN varchar2,email IN varchar2,address IN varchar2)is
+begin
+insert into employee1 values(empid,salary,dept);
+insert into employee_details values(empname,email,address);
+end;
+
+declare
+begin
+insert_e(101,25000,'Testing','Raj','raj@gmail.com','hyderabad');
+insert_e(102,15000,'BPO','Virat','virat@gmail.com','banglore');
+insert_e(101,15100,'BPO','Vir','virat@gmail.com','banglore');
+exception
+when dup_val_on_index then
+Raise_application_error(-20208,'duplicate values are not allowed');
+rollback;
+end;
+
+select * from employee1;
+select * from employee_details;
+
+---------------------------------------------------------------------
+2)Create a function returning a single row using cursor
+---------------------------------------------------
+create or replace function singlerow (e_id number)
+   return sys_refcursor
+is
+   c  sys_refcursor;
+begin
+   open c for
+      select * from employee1 where empid = e_id;
+   return c;
+end;
+ 
+declare
+c sys_refcursor;
+TYPE employee1 is RECORD(empid number,salary number,dept varchar2(20));
+emp employee1;
+begin
+  c:=singlerow(101);
+  fetch c into emp;
+  dbms_output.put_line(emp.empid||','||emp.salary||','||emp.dept);
+end;
+
+----------------------------------------------------------------------
+3)Create a function returning multiple rows using cursor
+----------------------------------------------------------------
+create or replace function mulRows
+   return sys_refcursor
+is
+   c  sys_refcursor;
+begin
+   open c for
+      select * from employee_details;
+   return c;
+end;
+ 
+declare
+c sys_refcursor;
+TYPE employee_details is RECORD(empname varchar2(20),email varchar2(20),address varchar2(20));
+emp_details employee_details;
+begin
+  c:=mulRows();
+  loop
+  fetch c into emp_details;
+  exit when c%notfound;
+  dbms_output.put_line(emp_details.empname||','||emp_details.email||','||emp_details.address);
+  end loop;
+end;
