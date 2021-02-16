@@ -1,127 +1,87 @@
-2 Inserts in two table using procedure
-________________________
+INSERING INTO TWO TABLES USING A SINGLE PROCEDURE.
+------------------------
+CREATE TABLE students(
+  rollno number(20),
+  name varchar2(25),
+  class number(20),
+  CONSTRAINT students_pk PRIMARY KEY (rollno));
 
-create table staffppl(empid number primary key,empname varchar(20),address varchar2(20),salary number);
-insert into staffppl values(1,'Niharika','Vijayawada',20000);
-insert into staffppl values(2,'Tejasri','Pune',50000);
-insert into staffppl values(3,'Rupa','Banglore',40000);
-insert into staffppl values(4,'Lavanya','Hyd',60000);
-insert into staffppl values(5,'Sekhar','chennai',80000);
-
-select * from staffppl;
-
-create table information(mail_id varchar2(20),dept number,duration number,projectname varchar2(20),unique(mail_id));
-insert into information values('neha@gmail.com',1,4,'Airlines');
-insert into information values('tejas@gmail.com',2,3,'bank');
-insert into information values('vani@gmail.com',3,2,'railways');
-insert into information values('sai@gmail.com',4,6,'events');
-insert into information values('somas@gmail.com',5,1,'e-learning');
-
-select * from information;
+CREATE TABLE marks(
+  hallticketno num(20),
+  phy num(20),
+  chem num(20),
+  math num(20),
+  result varchar2(25),
+  CONSTRAINT marks_pk PRIMARY KEY (hallticketno));
 
 
-select a.empid,a.empname,a.address,a.salary,b.mail_id,b.dept,b.duration,b.projectname from staffppl a,information b where a.empid=b.dept;
+CREATE OR REPLACE PROCEDURE Insert_Check(rollno IN number,name IN varchar2,class IN number,hallticketno IN number,physics IN number,chemistry IN number,maths IN number,result IN varchar2)IS
+  BEGIN     
+  insert into students values(rollno,name,class);
+  insert into marks values(hallticketno,phy,chem,maths,result);
+  END;   
 
-create or replace procedure Insert_values( empid IN number,empname IN varchar(20),dept IN varchar2(20),salary IN number,mail_id IN varchar2(20),address IN varchar2(20),duration IN number,projectname IN varchar2(20)) is
-begin
-insert into staff values(empid,empname,address,salary);
-insert into info values(mail-id,dept,duration,projectname);
-end;
-
-declare
-begin
-Insert_values(6,'chandu','mumbai',35000,'chandu@gmail.com',6,4,'networks');
-end;
-
- EXCEPTION
+  
+DECLARE
+BEGIN
+insert_Check(413414,'mahithavijay','45',210521,45,48,50,'a');
+EXCEPTION
  WHEN DUP_VAL_ON_INDEX THEN
- dbms_output.put_line('unique index are repeated re enter data.');
+ dbms_output.put_line('unique index is repeated re enter data.');
  rollback;
  WHEN OTHERS THEN 
-_____________________________________________________________
-
-FUNCTION RETURN MULTIPLE ROWS
-________________________
-
-CREATE TABLE account1 (
- account_id INT,
- name VARCHAR2(20),
-address varchar2(20)
-);
-
-INSERT INTO account1 VALUES ( 1, 'NIHARIKA','Hyderabad' );
-INSERT INTO account1 VALUES ( 2, 'TEJASRI','Vijayawada' );
-INSERT INTO account1 VALUES ( 3, 'LAVANYA','Pune' );
-
-select * from account1;
-
-CREATE OR REPLACE FUNCTION get_accounts(
-  Acc_id IN account1.account_id%TYPE) RETURN account1%ROWTYPE
-AS
-  x account1%ROWTYPE;
-BEGIN
-  SELECT * INTO   x FROM   account1 WHERE  account_id = Acc_id;
-
-  RETURN x;
+ dbms_output.put_line('data types entered do match please re-enter the data.');
+ rollback;
 END;
-/
 
 
-DECLARE
-  r_acct ACCOUNT1%ROWTYPE;
-BEGIN
-  r_acct := get_accounts( 1 );
-DBMS_OUTPUT.PUT_LINE( r_acct.name ||' ' || r_acct.address);
-r_acct := get_accounts( 2 );
-  DBMS_OUTPUT.PUT_LINE( r_acct.name ||' ' || r_acct.address);
-END;
-/
-________________________________________________________________
-FUNCTION WITH RETURN SINGLE ROW
-____________________________________
+select * from students
+select * from marks
+----------------------------------------------------------
+DISPLAYING SINGLE ROW USING FUNCTION
+--------------------------------
+create or replace function singleRow (id number)
+   return sys_refcursor
+is
+   c sys_refcursor;
+begin
+   open c for
+   select * from marks where hallticketno = id;
+   return c;
+end singleRow;
+ 
+declare
+c sys_refcursor;
+TYPE marks is RECORD(hallticketno number,phy number,chem number,math number,result varchar2(25));
+rec marks;
+begin
+  c:=singleRow(121);
+  fetch c into rec;
+  dbms_output.put_line(rec.hallticketno||','||rec.phy||','||rec.chem||','||rec.math||','||rec.result);
+end;
 
-CREATE TABLE account1 (
- account_id INT,
- name VARCHAR2(20),
-address varchar2(20)
-);
-
-INSERT INTO account1 VALUES ( 1, 'NIHARIKA','Hyderabad' );
-INSERT INTO account1 VALUES ( 2, 'TEJASRI','Vijayawada' );
-INSERT INTO account1 VALUES ( 3, 'LAVANYA','Pune' );
-
-select * from account1;
-
-CREATE OR REPLACE FUNCTION get_accounts(
-  Acc_id IN account1.account_id%TYPE) RETURN account1%ROWTYPE
-AS
-  x account1%ROWTYPE;
-BEGIN
-  SELECT * INTO   x FROM   account1 WHERE  account_id = Acc_id;
-
-  RETURN x;
-END;
-/
-
-
-DECLARE
-  r_acct ACCOUNT1%ROWTYPE;
-BEGIN
-  r_acct := get_accounts( 1 );
-DBMS_OUTPUT.PUT_LINE( r_acct.name ||' ' || r_acct.address);
-
-END;
-/
-
-
-
-
-
-
-
-
-
-
-
-
-
+-------------------------------------------------------------
+DISPLAYING MULTIPLE ROWS USING FUNTIONS
+-------------------
+create or replace function multipleRows
+   return sys_refcursor
+is
+   c sys_refcursor;
+begin
+   open c for
+   select * from students;
+   return c;
+end multipleRows;
+ 
+declare
+c sys_refcursor;
+TYPE students is RECORD(rollno number,name varchar2(20),class number);
+rec students;
+begin
+  c:=multipleRows();
+  loop
+  fetch c into rec;
+  exit when c%notfound;
+  dbms_output.put_line(rec.rollno||','||rec.name||','||rec.class);
+  end loop;
+end;
