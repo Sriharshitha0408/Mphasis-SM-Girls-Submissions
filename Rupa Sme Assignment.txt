@@ -1,0 +1,75 @@
+
+
+1)Create two tables and insert in both the tables using procedure with exception handling and rollback.
+---------------------------------------------------------------------------------------------------------
+
+CREATE TABLE product(productID number,productName varchar2(25),productprice number);
+ALTER TABLE product ADD PRIMARY KEY(productID);
+INSERT INTO product VALUES (1,'box',10);
+INSERT INTO product VALUES (2,'pen',20);
+INSERT INTO product VALUES (3,'car',30);
+CREATE TABLE product5(productID number primary key,productName varchar2(25),productprice number);
+INSERT INTO product5 VALUES (1,'pencil',3);
+CREATE OR REPLACE PROCEDURE insert_mul (p IN number, q IN varchar2, r IN number, s IN number, t IN varchar2, u IN number) IS
+
+BEGIN
+INSERT INTO product VALUES (p, q, r);
+
+INSERT INTO product5 VALUES (s, t, u);
+
+END;
+
+DECLARE 
+BEGIN
+
+insert_mul(4,'book','book',4,'sketch',10);
+
+EXCEPTION
+WHEN OTHERS THEN 
+dbms_output.put_line('ENTER CORRECT DATATYPE VALUES');
+
+rollback;
+END;
+_____________________________________________________________________________________________________________________________________________
+2)Create a function returning multiple rows using cursor
+----------------------------------------------------------
+CREATE or REPLACE function Multi_Rows return sys_refcursor is c  sys_refcursor;
+begin
+open c for  SELECT *  FROM product;
+return c;
+end Multi_Rows;
+ 
+declare
+c sys_refcursor;
+TYPE products is RECORD(productID number,productName varchar2(25),productprice number);
+rec products;
+begin
+  c:=Multi_Rows();
+  loop
+  fetch c into rec;
+  exit when c%notfound;
+  dbms_output.put_line(rec.productID||','||rec.productName||','||rec.productprice);
+  end loop;
+end;
+_______________________________________________________________________________________________________________________________________________________
+3)Create a function returning single rows using cursor.
+-----------------------------------------------------------
+CREATE or REPLACE function Single_Row return sys_refcursor is c  sys_refcursor;
+begin
+open c for  SELECT *  FROM product;
+return c;
+end Single_Row;
+ 
+declare
+c sys_refcursor;
+TYPE products is RECORD(productID number,productName varchar2(25),productprice number);
+rec products;
+begin
+  c:=Single_Row();
+  loop
+  fetch c into rec;
+  exit when c%notfound;
+  dbms_output.put_line(rec.productID||','||rec.productName||','||rec.productprice);
+  end loop;
+end;
+_______________________________________________________________________________________________________________________________________________________
