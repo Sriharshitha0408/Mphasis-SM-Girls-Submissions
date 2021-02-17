@@ -59,4 +59,40 @@ begin
   dbms_output.put_line(b.id||','||b.cost||','||b.name);
 end;
 
-----------------------------------------------------------------------
+----------------------------------------------------------
+3)Create function returns multiple rows
+----------------------------------------------------
+
+
+CREATE TABLE person (
+ account_id INT,
+ name VARCHAR2(20),
+address varchar2(20)
+);
+
+INSERT INTO person VALUES ( 1, 'sai','Hyderabad' );
+INSERT INTO person VALUES ( 2, 'ramya','bangalore' );
+
+select * from person;
+
+CREATE OR REPLACE FUNCTION get_persons(
+  Acc_id IN person.account_id%TYPE) RETURN person%ROWTYPE
+AS
+  x person%ROWTYPE;
+BEGIN
+  SELECT * INTO   x FROM   person WHERE  account_id = Acc_id;
+
+  RETURN x;
+END;
+/
+
+
+DECLARE
+  b person%ROWTYPE;
+BEGIN
+ b := get_persons( 1 );
+DBMS_OUTPUT.PUT_LINE( b.name ||' ' || b.address);
+b := get_persons( 2 );
+  DBMS_OUTPUT.PUT_LINE( b.name ||' ' || b.address);
+END;
+/
