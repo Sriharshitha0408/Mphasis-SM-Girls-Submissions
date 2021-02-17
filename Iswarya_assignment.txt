@@ -1,0 +1,77 @@
+
+
+1.Create two tables and insert in both the tables using procedure with exception handling and rollback.
+-----------------------------------------------------------------
+create table courses (course_id number primary key,cost number,c_name varchar2(20));
+create table reader(reader_name varchar2(20) primary key,phno number,address varchar2(20));
+create or replace procedure insert_det(course_id IN number,cost IN number,c_name IN varchar2,reader_name IN varchar2,phno IN number,address IN varchar2)is
+begin
+insert into courses values(course_id,cost,c_name);
+insert into reader values(reader_name,phno,address);
+end;
+
+declare
+begin
+insert_det(151,1500,'java','nisha',90345566,'hyd');
+insert_det(152,720,'c','isha',93204566,'bang');
+
+exception
+when dup_val_on_index then
+Raise_application_error(-20208,'duplicate');
+rollback;
+end;
+
+select * from courses;
+select * from reader;
+
+--------------------------------------------------------
+2.function returns a single row
+
+create or replace function singlerow (c_id number)
+   return sys_refcursor
+is
+   c  sys_refcursor;
+begin
+   open c for
+      select * from courses where course_id = c_id;
+   return c;
+end;
+ 
+
+ 
+declare
+c sys_refcursor;
+TYPE courses is RECORD(course_id number,cost number,c_name varchar2(20));
+crse courses;
+begin
+  c:=singlerow(151);
+  fetch c into crse;
+  dbms_output.put_line(crse.course_id||','||crse.cost||','||crse.c_name);
+end;
+ 
+-------------------------------
+3.Function returning  mutliple rows using cursor
+
+create or replace function mul_Row
+   return sys_refcursor
+is
+   c  sys_refcursor;
+begin
+   open c for
+      select * from reader;
+   return c;
+end;
+ 
+declare
+c sys_refcursor;
+TYPE reader is RECORD(reader_name varchar2(20),phno number,address varchar2(20));
+reader_details reader;
+begin
+  c:=mul_Row();
+  loop
+  fetch c into reader_details;
+  exit when c%notfound;
+  dbms_output.put_line(reader_details.reader_name||','||reader_details.phno||','||reader_details.address);
+  end loop;
+end;
+
