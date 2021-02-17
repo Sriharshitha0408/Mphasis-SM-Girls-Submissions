@@ -1,0 +1,94 @@
+
+1)fetching a single row
+-------------------------------------------------------------
+CREATE TABLE books (
+book_id number,book_name varchar2(20),book_price number
+
+);
+INSERT INTO books VALUES ( 171, 'mylifewithchemicals','750' );
+create or replace function fetchSingleRow (b_id number)
+   return sys_refcursor
+is
+   c   sys_refcursor;
+begin
+   open c for
+      select *
+        from books
+       where book_id = b_id;
+
+   return c;
+end fetchSingleRow;
+declare
+c sys_refcursor;
+TYPE books is RECORD(book_id number,book_name varchar2(20),book_price number);
+rec books;
+begin
+  c:=fetchSingleRow(171);
+  fetch c into rec;
+  dbms_output.put_line(rec.book_id||','||rec.book_name||','||rec.book_price);
+end;
+
+
+
+--------------------------------------------------------------
+2) fetching multiple rows
+
+
+create or replace function multipleRows
+   return sys_refcursor
+is
+   c   sys_refcursor;
+begin
+   open c for
+      select * from products;
+
+   return c;
+end multipleRows;
+
+declare
+c sys_refcursor;
+TYPE products is RECORD(product_id number,product_name varchar2(20),product_price number);
+rec products;
+begin
+  c:=multipleRows();
+  loop
+  fetch c into rec;
+  exit when c%notfound;
+  dbms_output.put_line(rec.product_id||','||rec.product_name||','||rec.product_price);
+  end loop;
+end;
+
+
+----------------------------------------------------------------------------
+
+3) multiple inserts
+
+
+CREATE TABLE employeee(
+  emp_id number(20),
+  emp_name varchar2(25),
+  
+  CONSTRAINT employeee_pk PRIMARY KEY (emp_id));
+CREATE TABLE department(
+  dept_id number(20),
+  dept_name varchar2(25),
+  
+  CONSTRAINT department_pk PRIMARY KEY (dept_id));
+CREATE OR REPLACE PROCEDURE Insert_multiple(emp_id IN number,emp_name IN varchar2,dept_id IN number,dept_name IN varchar2)IS
+  BEGIN     
+  insert into employeee values(emp_id,emp_name);
+  insert into department values(dept_id,dept_name);
+  END;     
+DECLARE
+BEGIN
+insert_multiple(101,'vaishu',5,'it');
+EXCEPTION
+ WHEN DUP_VAL_ON_INDEX THEN
+ dbms_output.put_line('unique index are repeated re enter data.');
+ rollback;
+ WHEN OTHERS THEN 
+ dbms_output.put_line('data types entered does not match re enter data.');
+ rollback;
+END;
+select * from employeee
+select * from department
