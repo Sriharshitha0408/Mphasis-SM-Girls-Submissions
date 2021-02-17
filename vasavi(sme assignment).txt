@@ -1,0 +1,66 @@
+
+
+1)Funtion which returns single row
+
+ 
+Create table  table11(
+ Id INT,
+ name VARCHAR2(20),
+address varchar2(20)
+);
+insert into table11 VALUES ( 1, 'Vasavi','Nellore' );
+insert into table11 VALUES ( 2, 'raani','kadapa' );
+insert into table11 VALUES ( 3, 'raju','USA' );
+ans) table created
+---------------------------------------------------------------------------------
+Select * from table11;
+---------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION get_details(
+  details_id IN table11.id%TYPE) RETURN table11%ROWTYPE
+AS
+  x table11%ROWTYPE;
+BEGIN
+  SELECT * INTO   x FROM   table11 WHERE  id = details_id;
+
+  RETURN x;
+END;
+
+function created--o/p
+-------------------------------------------------------------
+DECLARE
+  r_acct table11%ROWTYPE;
+BEGIN
+  r_acct := get_details( 1 );
+DBMS_OUTPUT.PUT_LINE( r_acct.name ||' ' || r_acct.address);
+
+END;
+
+ans) Vasavi Nellore
+
+Statement processed
+------------------------------------------------------------------------------------------------
+2)function which return mutiple row
+
+Create table  table11(
+ Id INT,
+ name VARCHAR2(20),
+address varchar2(20)
+);
+insert into table11 VALUES ( 1, 'Vasavi','Nellore' );
+insert into table11 VALUES ( 2, 'raani','kadapa' );
+insert into table11 VALUES ( 3, 'raju','USA' );
+ans) table created
+DECLARE
+  r_acct table11%ROWTYPE;
+BEGIN
+  r_acct := get_details( 1 );
+DBMS_OUTPUT.PUT_LINE( r_acct.name ||' ' || r_acct.address);
+r_acct := get_details( 2 );
+  DBMS_OUTPUT.PUT_LINE( r_acct.name ||' ' || r_acct.address);
+END
+ans)Vasavi Nellore
+raani kadapa
+
+Statement processed.
+-----------------------------------------------------------------------------------------------------
