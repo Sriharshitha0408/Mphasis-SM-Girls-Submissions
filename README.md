@@ -1,1 +1,0 @@
-# Mphasis-SM-Girls-Submissions
