@@ -1,0 +1,80 @@
+Inserting data into two tables using a single procedure
+
+create table books
+(bookid number primary key,
+bookname varchar2(20),
+Noofpublications varchar2(20));
+
+create table booksDetails 
+(bookauthor varchar2(20) primary key,
+price varchar2(20),
+manufacturePlace varchar2(20));
+
+create or replace procedure insert_e(bookid IN number,bookname IN varchar2,Noofpublications IN varchar2,bookauthor IN varchar2,price IN varchar2,manufacturePlace IN varchar2)is
+begin
+insert into books values(bookid,bookname,Noofpublications);
+insert into booksDetails values(bookauthor,price,manufacturePlace);
+end;
+
+declare
+begin
+insert_e(101,'Dora',400,'Harish',350,'hyderabad');
+insert_e(102,'mrBean',125,'Rowan',250,'banglore');
+insert_e(103,'Bheem',890,'Raj',150,'chennai');
+exception
+when dup_val_on_index then
+Raise_application_error(-20208,'no duplicate values allowed.ReEnter Data');
+rollback;
+end;
+
+select * from books;
+select * from booksdetails;
+
+
+-----------------------------------------------------------------------
+Displaying data in single row using function
+
+create or replace function funsinglerow (id number)
+   return sys_refcursor
+is
+   c  sys_refcursor;
+begin
+   open c for
+      select * from books where bookid = id;
+   return c;
+end;
+ 
+declare
+c sys_refcursor;
+TYPE books is RECORD(bookid number,bookname varchar2(20),Noofpublications varchar2(20));
+bd books;
+begin
+  c:=funsinglerow(101);
+  fetch c into bd;
+  dbms_output.put_line(bd.bookid||',BookName='||bd.bookname||',No Of Publications='||bd.Noofpublications);
+end;
+
+------------------------------------------------------
+Displaying data in multiple rows using function
+
+create or replace function multiplerows
+   return sys_refcursor
+is
+   c  sys_refcursor;
+begin
+   open c for
+      select * from booksdetails;
+   return c;
+end multiplerows;
+ 
+declare
+c sys_refcursor;
+TYPE booksdetails is RECORD(bookauthor varchar2(20),price varchar2(20),manufacturePlace varchar2(20));
+bd booksdetails;
+begin
+  c:=multiplerows();
+loop
+  fetch c into bd;
+  dbms_output.put_line(bd.bookauthor||','||bd.price||','||bd.manufacturePlace);
+end loop;
+end;
